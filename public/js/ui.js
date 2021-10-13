@@ -9,7 +9,7 @@ function clearErrors(fields) {
 }
 
 function capitalize(string) {
-  return string[0].toUpperCase() + string.slice(1).toUpperCase();
+  return string[0].toUpperCase() + string.slice(1).toLowerCase();
 }
 
 function displayErrors(fields, errors) {
