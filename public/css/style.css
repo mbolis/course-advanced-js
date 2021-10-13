@@ -55,7 +55,6 @@ h2 {
   margin: 0.5em 0;
   display: flex;
   flex-direction: column;
-  /* align-items: baseline; */
 }
 .field > label {
   font-size: 90%;
