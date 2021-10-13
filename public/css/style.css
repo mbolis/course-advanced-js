@@ -43,12 +43,14 @@ h2 {
 .notification.notification-error {
   display: block;
   background-color: pink;
-  border: 1px solid firebrick;
+  border: 1px solid tomato;
+  color: firebrick;
 }
 .notification.notification-success {
   display: block;
   background-color: palegreen;
   border: 1px solid forestgreen;
+  color: green;
 }
 
 .field {

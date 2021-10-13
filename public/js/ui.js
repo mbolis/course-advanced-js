@@ -20,6 +20,6 @@ function displayErrors(fields, errors) {
 }
 
 function displayNotification(el, type, message) {
-  el.classList.add("notification-" + type);
+  el.className = "notification notification-" + type;
   el.textContent = message;
 }

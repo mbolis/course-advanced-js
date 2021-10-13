@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
+      newProjectForm.reset();
+
       displayNotification(
         notificationBox,
         "success",
