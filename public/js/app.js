@@ -13,9 +13,36 @@ document.addEventListener("DOMContentLoaded", () => {
     errorTags: newProjectForm.querySelector(".error-tags"),
   };
 
-  newProjectForm.onsubmit = () => {
-    // Prevent the form from submitting
-    // Call some abstract internal API to save form data
-    // Update errors and notification
+  newProjectForm.onsubmit = (e) => {
+    e.preventDefault();
+
+    clearErrors(formFields);
+
+    const data = getFormData(formFields);
+
+    saveProject(data, (err, project) => {
+      if (err) {
+        switch (err.type) {
+          case "validation":
+            displayNotification(
+              notificationBox,
+              "error",
+              "Please resolve validation errors before submitting."
+            );
+            displayErrors(formFields, err.errors);
+            return;
+
+          default:
+            displayNotification(notificationBox, "error", err.message);
+            return;
+        }
+      }
+
+      displayNotification(
+        notificationBox,
+        "success",
+        `Project "${project.name}" saved with tags [${project.tags.join(", ")}]`
+      );
+    });
   };
 });
