@@ -1,0 +1,70 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>From &lt;form&gt; to AJAX &ndash; Advanced JavaScript Techniques</title>
+
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <section class="main-content">
+      <h1>Projects</h1>
+
+      {{#if projects.length}}
+        <table class="projects-table">
+          <thead>
+            <tr>
+              <th>Project name</th>
+              <th>Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each projects}}
+              <tr>
+                <td>{{name}}</td>
+                <td>{{tags}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      {{/if}}
+
+      <h2>Add project</h2>
+
+      <form class="project-form" action="/projects" method="post">
+        <div class="field">
+          <label for="project_name">Project name</label>
+          <input
+            type="text"
+            id="project_name"
+            name="name"
+            placeholder="..."
+            value="{{form.name}}"
+          />
+          {{#if errors.project_name}}
+            <p class="error">{{errors.project_name}}</p>
+          {{/if}}
+        </div>
+        <div class="field">
+          <label for="project_tags">Tags</label>
+          <input
+            type="text"
+            id="project_tags"
+            name="tags"
+            placeholder="comma separated..."
+            value="{{form.tags}}"
+          />
+          {{#if errors.project_tags}}
+            <p class="error">{{errors.project_tags}}</p>
+          {{/if}}
+        </div>
+        <div class="field">
+          <button type="submit">Create project</button>
+        </div>
+      </form>
+    </section>
+  </body>
+
+</html>
