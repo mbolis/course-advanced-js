@@ -16,12 +16,12 @@ function projectsList() {
     .sort((p1, p2) => p1.name.localeCompare(p2.name));
 }
 
-app.get("/", (_, resp) => {
-  resp.render("form", {
-    projects: projectsList(),
-    form: {},
-  });
-});
+// app.get("/", (_, resp) => {
+//   resp.render("form", {
+//     projects: projectsList(),
+//     form: {},
+//   });
+// });
 
 function getData(body) {
   const name = body.name?.trim();

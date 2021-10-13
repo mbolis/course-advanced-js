@@ -5,7 +5,7 @@ body {
   color: #303030;
 }
 .main-content {
-  width: 768px;
+  max-width: 768px;
   margin: 0 auto;
   background-color: white;
   padding: 0 2em;
@@ -21,22 +21,41 @@ h2 {
   border-bottom: 1px solid lightgray;
 }
 
-.projects-table {
-  border-collapse: collapse;
+.notification {
+  display: none;
+  padding: 0.5em 1em;
+  margin: 0 -2em;
+  pointer-events: none;
 }
-.projects-table th,
-.projects-table td {
-  border: 1px solid #777;
-  padding: 0.25em;
-  font-size: 80%;
-  text-align: left;
-  min-width: 150px;
+.notification::after {
+  content: "×";
+  float: right;
+  pointer-events: all;
+  cursor: pointer;
+  background: dimgray;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  text-align: center;
+  color: gainsboro;
+  mix-blend-mode: luminosity;
+}
+.notification.notification-error {
+  display: block;
+  background-color: pink;
+  border: 1px solid firebrick;
+}
+.notification.notification-success {
+  display: block;
+  background-color: palegreen;
+  border: 1px solid forestgreen;
 }
 
 .field {
   margin: 0.5em 0;
   display: flex;
   flex-direction: column;
+  /* align-items: baseline; */
 }
 .field > label {
   font-size: 90%;
