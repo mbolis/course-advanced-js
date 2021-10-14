@@ -30,6 +30,77 @@ function validateProjectData({ name, tags }, callback) {
   }
 }
 
+function saveProjectLocal(data, callback) {
+  try {
+    const stored = localStorage.getItem("projects_list");
+    const projects = stored ? JSON.parse(stored) : [];
+
+    const project = projects.find((p) => p.name === data.name);
+    if (project) {
+      project.tags = data.tags;
+    } else {
+      projects.push(data);
+      projects.sort((p1, p2) => p1.name.localeCompare(p2.name));
+    }
+
+    localStorage.setItem("projects_list", JSON.stringify(projects));
+
+    callback(null, data);
+  } catch (err) {
+    callback(err);
+  }
+}
+
+function saveProjectXHR(data, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/projects", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === 4) {
+      try {
+        if (xhr.status === 200) {
+          const project = JSON.parse(xhr.responseText);
+          callback(null, project);
+        } else {
+          const error = JSON.parse(xhr.responseText);
+          if (xhr.status === 400) {
+            error.type = "validation";
+          }
+
+          callback(error);
+        }
+      } catch (err) {
+        callback(err);
+      }
+    }
+  };
+  xhr.send(JSON.stringify(data));
+}
+
+function saveProjectJQuery(data, callback) {
+  $.post({
+    url: "/api/projects",
+    contentType: "application/json",
+    data: JSON.stringify(data),
+    dataType: "json",
+    success(project) {
+      callback(null, project);
+    },
+    error(xhr) {
+      try {
+        const error = JSON.parse(xhr.responseText);
+        if (xhr.status === 400) {
+          error.type = "validation";
+        }
+
+        callback(error);
+      } catch (err) {
+        callback(err);
+      }
+    },
+  });
+}
+
 function saveProject(data, callback) {
   validateProjectData(data, (err) => {
     if (err) {
@@ -37,9 +108,6 @@ function saveProject(data, callback) {
       return;
     }
 
-    // TODO: save project to remote storage
-    const project = { ...data };
-
-    callback(null, project);
+    saveProjectXHR(data, callback);
   });
 }

@@ -23,12 +23,8 @@ function projectsList() {
 //   });
 // });
 
-function getData(body) {
-  const name = body.name?.trim();
-  const tags = body.tags
-    ?.trim()
-    .split(/\s*,\s*/)
-    .filter((t) => !!t);
+function getData({ name, tags }) {
+  name = name?.trim();
 
   return { name, tags };
 }
@@ -36,10 +32,10 @@ function getData(body) {
 function validate({ name, tags }) {
   const errors = [];
   if (!name) {
-    errors.push(["project_name", "Please select a name for your project"]);
+    errors.push(["name", "Please select a name for your project"]);
   }
   if (!tags || !tags.length) {
-    errors.push(["project_tags", "Please insert at least one tag"]);
+    errors.push(["tags", "Please insert at least one tag"]);
   }
   if (errors.length) return Object.fromEntries(errors);
 }
@@ -77,10 +73,13 @@ app
 
     const errors = validate(data);
     if (errors) {
+      console.log("validation errors found");
       return resp.status(400).json({ errors });
     }
 
     addProject(data);
+    console.log("project saved", projects);
+
     resp.json(data);
   });
 

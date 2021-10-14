@@ -33,7 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
 
           default:
-            displayNotification(notificationBox, "error", err.message);
+            displayNotification(
+              notificationBox,
+              "error",
+              err.message ?? "Unexpected error."
+            );
             return;
         }
       }

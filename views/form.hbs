@@ -43,8 +43,8 @@
             placeholder="..."
             value="{{form.name}}"
           />
-          {{#if errors.project_name}}
-            <p class="error">{{errors.project_name}}</p>
+          {{#if errors.name}}
+            <p class="error">{{errors.name}}</p>
           {{/if}}
         </div>
         <div class="field">
@@ -56,8 +56,8 @@
             placeholder="comma separated..."
             value="{{form.tags}}"
           />
-          {{#if errors.project_tags}}
-            <p class="error">{{errors.project_tags}}</p>
+          {{#if errors.tags}}
+            <p class="error">{{errors.tags}}</p>
           {{/if}}
         </div>
         <div class="field">
