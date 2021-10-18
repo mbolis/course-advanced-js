@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel loading &amp; Callback Hell</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js"></script>
+  </head>
+  <body class="loading">
+    <h1>Sprite sheets</h1>
+    <div class="main">
+      <div class="sidebar">
+        <h2>Select character class</h2>
+        <p>
+          <select id="sprite">
+            <option value="02-bard">Bard</option>
+            <option value="06-conjurer">Conjurer</option>
+            <option value="05-devout">Devout</option>
+            <option value="04-scout">Scout</option>
+            <option value="03-soldier">Soldier</option>
+          </select>
+        </p>
+        <p>
+          <!-- <canvas id="sheet_display"></canvas> -->
+          <img id="sheet_display" src="images/02-bard.png"></img>
+        </p>
+      </div>
+
+      <div class="content">
+        <h2>Character showcase</h2>
+        <div id="showcase">
+          <div class="character">
+            <h3></h3>
+            <canvas width="64" height="64"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
