@@ -1,10 +1,5 @@
+//@ts-check
 "use strict";
-
-// All seems to work well, but... What if the connection is not good?
-// TODO: preload images
-// How to orchestrate?
-// - one after the other?
-// - in parallel?
 
 const TILE_SIZE = 16;
 
@@ -13,11 +8,19 @@ const SPRITE_ROWS = 4;
 const SPRITE_WIDTH = TILE_SIZE * SPRITE_COLS;
 const SPRITE_HEIGHT = TILE_SIZE * SPRITE_ROWS;
 
+/**
+ *
+ * @param {HTMLElement} el
+ * @returns
+ */
 function makeTemplateFactory(el) {
   const h3 = el.querySelector("h3");
 
   el.remove();
 
+  /**
+   * @param {HTMLImageElement} spriteSheet
+   */
   return (spriteSheet) => {
     const width = spriteSheet.naturalWidth;
     const height = spriteSheet.naturalHeight;
@@ -53,7 +56,7 @@ function makeTemplateFactory(el) {
 
       const sprite = sprites[index];
 
-      const view = el.cloneNode(true);
+      const view = /** @type {HTMLElement} */ (el.cloneNode(true));
       const canvas = view.querySelector("canvas");
       const ctx = canvas.getContext("2d");
 
@@ -108,38 +111,3 @@ function makeTemplateFactory(el) {
     return render;
   };
 }
-
-const NAMES = [
-  "Garrett",
-  "Lynn",
-  "Arvald",
-  "Celina",
-  "Burt",
-  "Osyria",
-  "Tycho",
-  "Remedia",
-];
-
-document.addEventListener("DOMContentLoaded", () => {
-  const spriteSelect = document.getElementById("sprite");
-  const spriteImg = document.getElementById("sheet_display");
-
-  spriteSelect.onchange = () => {
-    document.body.classList.add("loading");
-    spriteImg.src = `images/${spriteSelect.value}.png`;
-  };
-
-  const showcase = document.getElementById("showcase");
-
-  let template;
-  spriteImg.onload = () => {
-    document.body.classList.remove("loading");
-    template && template.destroy();
-
-    const prepare = makeTemplateFactory(document.querySelector(".character"));
-    template = prepare(spriteImg);
-
-    showcase.textContent = "";
-    showcase.append(...NAMES.map(template));
-  };
-});
