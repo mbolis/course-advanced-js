@@ -103,44 +103,43 @@ function saveProjectJQuery(data, callback) {
   });
 }
 
-function saveProjectAxios(data) {
-  return axios
-    .post("/api/projects", data)
-    .then((resp) => resp.data)
-    .catch((err) => {
-      if (err.response) {
-        const additionalData = {};
-        if (err.response.status === 400) {
-          additionalData.type = "validation";
-        }
-        throw Object.assign(err.response.data, additionalData);
+async function saveProjectAxios(data) {
+  try {
+    const resp = await axios.post("/api/projects", data);
+    return resp.data;
+  } catch (err) {
+    if (err.response) {
+      const additionalData = {};
+      if (err.response.status === 400) {
+        additionalData.type = "validation";
       }
+      throw Object.assign(err.response.data, additionalData);
+    }
 
-      throw error;
-    });
+    throw error;
+  }
 }
 
-function saveProjectFetch(data) {
-  return fetch("/api/projects", {
+async function saveProjectFetch(data) {
+  const resp = await fetch("/api/projects", {
     method: "POST",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify(data),
-  }).then((resp) => {
-    const json = resp.json();
-    if (resp.ok) {
-      return json;
-    }
-    return json.then((json) => {
-      if (resp.status === 400) {
-        json = Object.assign(json, { type: "validation" });
-      }
-      throw json;
-    });
   });
+
+  const json = await resp.json();
+  if (resp.ok) {
+    return json;
+  }
+  if (resp.status === 400) {
+    throw Object.assign(json, { type: "validation" });
+  }
+  throw json;
 }
 
-function saveProject(data) {
-  return validateProjectData(data).then(() => saveProjectFetch(data));
+async function saveProject(data) {
+  await validateProjectData(data);
+  return saveProjectFetch(data);
 }
