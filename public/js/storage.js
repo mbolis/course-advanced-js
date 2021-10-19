@@ -120,6 +120,27 @@ function saveProjectAxios(data) {
     });
 }
 
-function saveProject(data, callback) {
-  return validateProjectData(data).then(() => saveProjectAxios(data, callback));
+function saveProjectFetch(data) {
+  return fetch("/api/projects", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then((resp) => {
+    const json = resp.json();
+    if (resp.ok) {
+      return json;
+    }
+    return json.then((json) => {
+      if (resp.status === 400) {
+        json = Object.assign(json, { type: "validation" });
+      }
+      throw json;
+    });
+  });
+}
+
+function saveProject(data) {
+  return validateProjectData(data).then(() => saveProjectFetch(data));
 }
