@@ -8,79 +8,40 @@
  */
 
 /**
- * Load one image, call `onLoad` when it is loaded.
+ * Load one image asynchronously.
  * @param {string} url
- * @param {OnLoaded<HTMLImageElement>} onLoad
  */
-function preloadImage(url, onLoad) {
-  const image = new Image();
-  image.onload = () => onLoad(null, image);
-  image.onerror = () => onLoad(new Error("Could not load image: " + url));
-  image.src = url;
-
-  return image;
-}
-
-/**
- * Load all images in sequence, call `onLoad` when they are **all** loaded.
- * @param {string[]} urls
- * @param {OnLoaded<HTMLImageElement[]>} onLoad
- */
-function preloadAllImagesSequence(urls, onLoad) {
-  const images = [];
-  preloadImage(urls.shift(), function doWork(err, image) {
-    if (err) return onLoad(err);
-
-    images.push(image);
-    if (!urls.length) onLoad(null, images);
-    else preloadImage(urls.shift(), doWork);
+function preloadImage(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Could not load image: " + url));
+    image.src = url;
   });
-
-  return images; // Will be empty at first...
 }
 
 /**
- * Load all images, call `onLoad` when they are **all** loaded.
+ * Load all images asynchronously.
  * @param {string[]} urls
- * @param {OnLoaded<HTMLImageElement[]>} onLoad
  */
-function preloadAllImages(urls, onLoad) {
-  let remaining = 0;
-  let crashed = false;
-
-  const images = urls.map((url) => {
-    remaining++;
-    return preloadImage(url, (err) => {
-      if (crashed) return;
-      if (err) {
-        crashed = true;
-        onLoad(err);
-        return;
-      }
-      if (!--remaining) onLoad(null, images);
-    });
-  });
-
-  return images;
+function preloadAllImages(urls) {
+  return Promise.all(urls.map(preloadImage));
 }
 
 /**
- * Load all images, call `onLoad` when **any** is loaded or fails.
+ * Load all images asynchronously, signal as soon as one is ready.
  * @param {string[]} urls
- * @param {OnLoaded<HTMLImageElement>} onLoad
  */
-function preloadAnyImage(urls, onLoad) {
-  let done = false;
+function preloadAnyImage(urls) {
+  return Promise.any(urls.map(preloadImage));
+}
 
-  return urls.map((url) =>
-    preloadImage(url, (err, image) => {
-      if (done) return;
-      if (err) return onLoad(err);
-
-      done = true;
-      onLoad(null, image);
-    })
-  );
+/**
+ * Load all images asynchronously, signal as soon as one is ready or errors.
+ * @param {string[]} urls
+ */
+function tryPreloadAnyImage(urls) {
+  return Promise.race(urls.map(preloadImage));
 }
 
 const NAMES = [
@@ -115,30 +76,30 @@ document.addEventListener("DOMContentLoaded", () => {
     spriteImg.src = spriteUrl(spriteSelect);
   };
 
-  preloadAnyImage(spriteUrls, (err, image) => {
-    if (err) return alert(`Error! ${err.message}`);
+  tryPreloadAnyImage(spriteUrls)
+    .catch((err) => alert(`Error! ${err.message}`))
+    .then((image) => {
+      let template;
 
-    let template;
+      spriteImg.onload = displayShowcase;
+      if (image instanceof HTMLImageElement) {
+        const [, value] = /\/([^\/]+)\.png$/.exec(image.src);
+        spriteSelect.value = value;
+        spriteSelect.onchange();
+      } else {
+        displayShowcase();
+      }
 
-    spriteImg.onload = displayShowcase;
-    if (image instanceof HTMLImageElement) {
-      const [, value] = /\/([^\/]+)\.png$/.exec(image.src);
-      spriteSelect.value = value;
-      spriteSelect.onchange();
-    } else {
-      displayShowcase();
-    }
+      function displayShowcase() {
+        document.body.classList.remove("loading");
 
-    function displayShowcase() {
-      document.body.classList.remove("loading");
+        // cleanup
+        template && template.destroy();
+        showcase.textContent = "";
 
-      // cleanup
-      template && template.destroy();
-      showcase.textContent = "";
-
-      // draw
-      template = templateFactory(spriteImg);
-      showcase.append(...NAMES.map(template));
-    }
-  });
+        // draw
+        template = templateFactory(spriteImg);
+        showcase.append(...NAMES.map(template));
+      }
+    });
 });
