@@ -20,8 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = getFormData(formFields);
 
-    saveProject(data, (err, project) => {
-      if (err) {
+    saveProject(data)
+      .then((project) => {
+        newProjectForm.reset();
+
+        displayNotification(
+          notificationBox,
+          "success",
+          `Project "${project.name}" saved with tags [${project.tags.join(
+            ", "
+          )}]`
+        );
+      })
+      .catch((err) => {
         switch (err.type) {
           case "validation":
             displayNotification(
@@ -40,15 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
             );
             return;
         }
-      }
-
-      newProjectForm.reset();
-
-      displayNotification(
-        notificationBox,
-        "success",
-        `Project "${project.name}" saved with tags [${project.tags.join(", ")}]`
-      );
-    });
+      });
   };
 });

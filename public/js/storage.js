@@ -24,9 +24,11 @@ function validateProjectData({ name, tags }, callback) {
   }
 
   if (!valid) {
-    callback({ type: "validation", errors });
+    // callback({ type: "validation", errors });
+    return Promise.reject({ type: "validation", errors });
   } else {
-    callback();
+    // callback();
+    return Promise.resolve();
   }
 }
 
@@ -101,13 +103,23 @@ function saveProjectJQuery(data, callback) {
   });
 }
 
-function saveProject(data, callback) {
-  validateProjectData(data, (err) => {
-    if (err) {
-      callback(err);
-      return;
-    }
+function saveProjectAxios(data) {
+  return axios
+    .post("/api/projects", data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      if (err.response) {
+        const additionalData = {};
+        if (err.response.status === 400) {
+          additionalData.type = "validation";
+        }
+        throw Object.assign(err.response.data, additionalData);
+      }
 
-    saveProjectXHR(data, callback);
-  });
+      throw error;
+    });
+}
+
+function saveProject(data, callback) {
+  return validateProjectData(data).then(() => saveProjectAxios(data, callback));
 }
