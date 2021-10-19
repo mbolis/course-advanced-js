@@ -77,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   tryPreloadAnyImage(spriteUrls)
-    .catch((err) => alert(`Error! ${err.message}`))
     .then((image) => {
       let template;
 
@@ -101,5 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
         template = templateFactory(spriteImg);
         showcase.append(...NAMES.map(template));
       }
-    });
+    })
+    .catch((err) => alert(`Error! ${err.message}`));
 });
