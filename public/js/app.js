@@ -29,6 +29,23 @@ function SendDataToServer(data, callBack) {
   xhr.send(JSON.stringify(data));
 }
 
+function fetchDataFromServer(data) {
+  return fetch("/api/projects", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then((resp) => {
+    if (resp.status === 200) return resp.json();
+    if (resp.status === 400)
+      return resp.json().then((e) => {
+        throw { type: "validation", errors: e.errors };
+      });
+    throw new Error("failed with status " + resp.status);
+  });
+}
+
 function throwValidationError(errors) {
   const err = new Error();
   err.type = "validation";
@@ -53,14 +70,16 @@ function saveFormData({ name, tags }, onSuccess, onError) {
 
   // localStorage.setItem("projects_list", JSON.stringify({ name, tags }));
 
-  SendDataToServer({ name, tags }, (err, response) => {
-    if (err) {
-      onError(err);
-      return;
-    }
+  // SendDataToServer({ name, tags }, (err, response) => {
+  //   if (err) {
+  //     onError(err);
+  //     return;
+  //   }
 
-    onSuccess(response);
-  });
+  //   onSuccess(response);
+  // });
+
+  fetchDataFromServer({ name, tags }).then(onSuccess).catch(onError);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
