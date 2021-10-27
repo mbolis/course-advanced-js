@@ -81,6 +81,7 @@ app
     }
 
     addProject(data);
+    console.log(projectsList());
     resp.json(data);
   });
 
