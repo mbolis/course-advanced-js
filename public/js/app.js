@@ -29,21 +29,25 @@ function SendDataToServer(data, callBack) {
   xhr.send(JSON.stringify(data));
 }
 
-function fetchDataFromServer(data) {
-  return fetch("/api/projects", {
+async function fetchDataFromServer(data) {
+  const resp = await fetch("/api/projects", {
     method: "POST",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify(data),
-  }).then((resp) => {
-    if (resp.status === 200) return resp.json();
-    if (resp.status === 400)
-      return resp.json().then((e) => {
-        throw { type: "validation", errors: e.errors };
-      });
-    throw new Error("failed with status " + resp.status);
   });
+
+  if (resp.status === 200) {
+    return resp.json();
+  }
+
+  if (resp.status === 400) {
+    const e = await resp.json();
+    throw { type: "validation", errors: e.errors };
+  }
+
+  throw new Error("failed with status " + resp.status);
 }
 
 function throwValidationError(errors) {
@@ -53,7 +57,7 @@ function throwValidationError(errors) {
   throw err;
 }
 
-function saveFormData({ name, tags }, onSuccess, onError) {
+function saveFormData({ name, tags }) {
   name = name.trim();
   tags = tags.trim();
 
@@ -79,7 +83,7 @@ function saveFormData({ name, tags }, onSuccess, onError) {
   //   onSuccess(response);
   // });
 
-  fetchDataFromServer({ name, tags }).then(onSuccess).catch(onError);
+  return fetchDataFromServer({ name, tags });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -95,43 +99,41 @@ document.addEventListener("DOMContentLoaded", () => {
     errorTags: newProjectForm.querySelector(".error-tags"),
   };
 
-  newProjectForm.onsubmit = (e) => {
+  newProjectForm.onsubmit = async (e) => {
     // Prevent the form from submitting
     e.preventDefault();
 
     formFields.errorName.textContent = "";
     formFields.errorTags.textContent = "";
 
-    // Call some abstract internal API to save form data
-    saveFormData(
-      {
+    try {
+      // Call some abstract internal API to save form data
+      const { name, tags } = await saveFormData({
         name: formFields.name.value,
         tags: formFields.tags.value,
-      },
-      ({ name, tags }) => {
-        // Update notification
-        notificationBox.classList.add("notification-success");
-        notificationBox.textContent = `Project "${name}" added, with tags: ${tags.join(
-          ", "
-        )}`;
+      });
 
-        formFields.name.value = "";
-        formFields.tags.value = "";
-      },
-      (e) => {
-        // Update errors and notification
-        if (e.type === "validation") {
-          const { project_name, project_tags } = e.errors;
+      // Update notification
+      notificationBox.classList.add("notification-success");
+      notificationBox.textContent = `Project "${name}" added, with tags: ${tags.join(
+        ", "
+      )}`;
 
-          formFields.errorName.textContent = project_name ?? "";
-          formFields.errorTags.textContent = project_tags ?? "";
+      formFields.name.value = "";
+      formFields.tags.value = "";
+    } catch (e) {
+      // Update errors and notification
+      if (e.type === "validation") {
+        const { project_name, project_tags } = e.errors;
 
-          notificationBox.classList.add("notification-error");
-          notificationBox.textContent = "Please check your form";
-        } else {
-          console.error(e);
-        }
+        formFields.errorName.textContent = project_name ?? "";
+        formFields.errorTags.textContent = project_tags ?? "";
+
+        notificationBox.classList.add("notification-error");
+        notificationBox.textContent = "Please check your form";
+      } else {
+        console.error(e);
       }
-    );
+    }
   };
 });
